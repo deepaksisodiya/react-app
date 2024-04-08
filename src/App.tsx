@@ -1,33 +1,138 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [todos, setTodos] = useState([]);
+  const [error, setError] = useState('');
+  const [isLoading, setLoading] = useState(false);
+  const [newTodoInput, setNewTodoInput] = useState('');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch('http://localhost:3000/todos/');
+        
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const responseData = await response.json();
+        setTodos(responseData);
+      } catch (error) {
+        setError('Error in loading todo');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData(); 
+  }, []);
+
+  const handleAddTodo = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/todos/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: newTodoInput,
+          completed: false,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to add todo');
+      }
+      const newTodo = await response.json();
+      setTodos([...todos, newTodo]);
+      setNewTodoInput('');
+    } catch (error) {
+      console.error('Error adding todo:', error);
+    }
+  };
+
+  const handleDeleteTodo = async (todoId: string) => {
+    try {
+      const response = await fetch(`http://localhost:3000/todos/${todoId}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to add todo');
+      }
+      setTodos(todos.filter(todo => todo.id !== todoId)); 
+    } catch (error) {
+      console.error('Error deleting todo:', error);
+    }
+  };
+
+  const handleCheckboxChange = async (id, completed) => {
+    try {
+      const response = await fetch(`http://localhost:3000/todos/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          completed: !completed
+        }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update todo');
+      }
+      setTodos(todos.map(todo => {
+        if (todo.id === id) {
+          return { ...todo, completed: !completed };
+        }
+        return todo;
+      }));
+    } catch (error) {
+      console.error('Error updating todo:', error);
+    }
+  };
+
+  const renderAddTodo = () => {
+    return (
+      <div>
+        <input 
+          type='input'
+          placeholder="Enter todo title"
+          value={newTodoInput}
+          onChange={e => setNewTodoInput(e.target.value)}
+        />
+        <button onClick={handleAddTodo}>Add</button>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error in loading todos</div>;
+  }
 
   return (
     <>
       <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        { renderAddTodo() }
+        <h1>Todo List</h1>
+        <ul>
+          {todos.map(todo => (
+            <div key={todo.id}>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={todo.completed}
+                  onChange={() => handleCheckboxChange(todo.id)}
+                />
+                {todo.title}
+              </label>
+              <button onClick={() => handleDeleteTodo(todo.id)}>Delete</button>
+            </div>
+          ))}
+        </ul>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   )
 }
