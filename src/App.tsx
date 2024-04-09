@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import './App.css'
+import { setTodosRedux } from './todoSlice.js';
 
 function App() {
   const [todos, setTodos] = useState([]);
   const [error, setError] = useState('');
   const [isLoading, setLoading] = useState(false);
   const [newTodoInput, setNewTodoInput] = useState('');
+  const dispatch = useDispatch();
+  const todosStore = useSelector((state) => state.todos.todos);
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -18,6 +23,7 @@ function App() {
         }
         const responseData = await response.json();
         setTodos(responseData);
+        dispatch(setTodosRedux(responseData));
       } catch (error) {
         setError('Error in loading todo');
       } finally {
@@ -118,7 +124,7 @@ function App() {
         { renderAddTodo() }
         <h1>Todo List</h1>
         <ul>
-          {todos.map(todo => (
+          {todosStore.map(todo => (
             <div key={todo.id}>
               <label>
                 <input
