@@ -4,7 +4,6 @@ import './App.css'
 import { setTodosRedux } from './todoSlice.js';
 
 function App() {
-  const [todos, setTodos] = useState([]);
   const [error, setError] = useState('');
   const [isLoading, setLoading] = useState(false);
   const [newTodoInput, setNewTodoInput] = useState('');
@@ -22,7 +21,6 @@ function App() {
           throw new Error('Network response was not ok');
         }
         const responseData = await response.json();
-        setTodos(responseData);
         dispatch(setTodosRedux(responseData));
       } catch (error) {
         setError('Error in loading todo');
@@ -50,7 +48,7 @@ function App() {
         throw new Error('Failed to add todo');
       }
       const newTodo = await response.json();
-      setTodos([...todos, newTodo]);
+      dispatch(setTodosRedux([...todosStore, newTodo]));
       setNewTodoInput('');
     } catch (error) {
       console.error('Error adding todo:', error);
@@ -65,7 +63,7 @@ function App() {
       if (!response.ok) {
         throw new Error('Failed to add todo');
       }
-      setTodos(todos.filter(todo => todo.id !== todoId)); 
+      dispatch(setTodosRedux(todosStore.filter(todo => todo.id !== todoId)));
     } catch (error) {
       console.error('Error deleting todo:', error);
     }
@@ -85,12 +83,12 @@ function App() {
       if (!response.ok) {
         throw new Error('Failed to update todo');
       }
-      setTodos(todos.map(todo => {
+      dispatch(setTodosRedux(todosStore.map(todo => {
         if (todo.id === id) {
           return { ...todo, completed: !completed };
         }
         return todo;
-      }));
+      })));
     } catch (error) {
       console.error('Error updating todo:', error);
     }
