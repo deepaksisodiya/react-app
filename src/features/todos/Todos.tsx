@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setTodosRedux } from './todoSlice.js';
-import { fetchTodos, addTodo, deleteTodo } from './todosAPI.js';
+import { fetchTodos, addTodo, deleteTodo, toggleTodo } from './todosAPI.js';
 
 function Todos() {
   const [newTodoInput, setNewTodoInput] = useState('');
@@ -27,33 +26,8 @@ function Todos() {
     await dispatch(deleteTodo(todoId));
   };
 
-  const handleCheckboxChange = async (id, completed) => {
-    try {
-      const response = await fetch(`http://localhost:3000/todos/${id}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          completed: !completed
-        })
-      });
-      if (!response.ok) {
-        throw new Error('Failed to update todo');
-      }
-      dispatch(
-        setTodosRedux(
-          todosStore.map((todo) => {
-            if (todo.id === id) {
-              return { ...todo, completed: !completed };
-            }
-            return todo;
-          })
-        )
-      );
-    } catch (error) {
-      console.error('Error updating todo:', error);
-    }
+  const handleCheckboxChange = async (id) => {
+    await dispatch(toggleTodo(id));
   };
 
   const renderAddTodo = () => {

@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchTodos, addTodo, deleteTodo } from './todosAPI.ts';
+import { fetchTodos, addTodo, deleteTodo, toggleTodo } from './todosAPI.ts';
 
 const initialState = {
   todos: [],
@@ -10,17 +10,6 @@ const initialState = {
 export const todosSlice = createSlice({
   name: 'todos',
   initialState,
-  reducers: {
-    setTodosRedux: (state, action) => {
-      state.todos = action.payload;
-    },
-    setLoading: (state, action) => {
-      state.isLoading = action.payload;
-    },
-    setError: (state, action) => {
-      state.error = action.payload;
-    }
-  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchTodos.pending, (state) => {
@@ -39,10 +28,16 @@ export const todosSlice = createSlice({
       })
       .addCase(deleteTodo.fulfilled, (state, action) => {
         state.todos = state.todos.filter((todo) => todo.id !== action.payload);
+      })
+      .addCase(toggleTodo.fulfilled, (state, action) => {
+        state.todos = state.todos.map((todo) => {
+          if (todo.id === action.payload.id) {
+            return action.payload;
+          }
+          return todo;
+        });
       });
   }
 });
-
-export const { setTodosRedux, setLoading, setError } = todosSlice.actions;
 
 export default todosSlice.reducer;

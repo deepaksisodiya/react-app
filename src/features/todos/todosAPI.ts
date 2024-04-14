@@ -36,3 +36,30 @@ export const deleteTodo = createAsyncThunk('todos/deleteTodo', async (todoId: st
   }
   return todoId;
 });
+
+export const toggleTodo = createAsyncThunk('todos/toggleTodo', async (todoId: string, { getState, dispatch }) => {
+  const currentState = getState();
+  const todo = currentState.todos.todos.find((todo) => todo.id === todoId);
+
+  if (!todo) {
+    throw new Error('Todo not found');
+  }
+
+  const updatedTodo = { ...todo, completed: !todo.completed };
+
+  const response = await fetch(`http://localhost:3000/todos/${todoId}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(updatedTodo)
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to toggle todo');
+  }
+
+  const updatedTodoFromAPI = await response.json();
+
+  return updatedTodoFromAPI;
+});
