@@ -14,10 +14,10 @@ export const todosSlice = createSlice({
       state.todos = action.payload;
     },
     setLoading: (state, action) => {
-      state.isLoading = action.isLoading;
+      state.isLoading = action.payload;
     },
     setError: (state, action) => {
-      state.error = action.error
+      state.error = action.payload
     },
   },
 });

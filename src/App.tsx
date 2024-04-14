@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import './App.css'
-import { setTodosRedux } from './todoSlice.js';
+import { setTodosRedux, setError, setLoading } from './todoSlice.js';
 
 function App() {
-  const [error, setError] = useState('');
-  const [isLoading, setLoading] = useState(false);
   const [newTodoInput, setNewTodoInput] = useState('');
   const dispatch = useDispatch();
   const todosStore = useSelector((state) => state.todos.todos);
+  const isLoading = useSelector((state) => state.todos.isLoading);
+  const error = useSelector((state) => state.todos.error);
   
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
+      dispatch(setLoading(true));
       try {
         const response = await fetch('http://localhost:3000/todos/');
         
@@ -22,10 +22,10 @@ function App() {
         }
         const responseData = await response.json();
         dispatch(setTodosRedux(responseData));
-      } catch (error) {
-        setError('Error in loading todo');
+      } catch {
+        dispatch(setError('Error in loading todo'));
       } finally {
-        setLoading(false);
+        dispatch(setLoading(false));
       }
     };
 
