@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setTodosRedux, setError, setLoading } from './TodoSlice.js';
+import { setTodosRedux } from './todoSlice.js';
+import { fetchTodos } from './todosAPI.js';
 
 function Todos() {
   const [newTodoInput, setNewTodoInput] = useState('');
@@ -10,25 +11,8 @@ function Todos() {
   const error = useSelector((state) => state.todos.error);
 
   useEffect(() => {
-    const fetchData = async () => {
-      dispatch(setLoading(true));
-      try {
-        const response = await fetch('http://localhost:3000/todos/');
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const responseData = await response.json();
-        dispatch(setTodosRedux(responseData));
-      } catch {
-        dispatch(setError('Error in loading todo'));
-      } finally {
-        dispatch(setLoading(false));
-      }
-    };
-
-    fetchData();
-  }, []);
+    dispatch(fetchTodos());
+  }, [dispatch]);
 
   const handleAddTodo = async () => {
     try {

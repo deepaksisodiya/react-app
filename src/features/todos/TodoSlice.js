@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { fetchTodos } from './todosAPI.ts';
 
 const initialState = {
   todos: [],
@@ -19,6 +20,20 @@ export const todosSlice = createSlice({
     setError: (state, action) => {
       state.error = action.payload;
     }
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchTodos.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchTodos.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.todos = action.payload;
+      })
+      .addCase(fetchTodos.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message;
+      });
   }
 });
 
