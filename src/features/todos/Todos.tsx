@@ -5,9 +5,7 @@ import { fetchTodos, addTodo, deleteTodo, toggleTodo } from './todosAPI.js';
 function Todos() {
   const [newTodoInput, setNewTodoInput] = useState('');
   const dispatch = useDispatch();
-  const todosStore = useSelector((state) => state.todos.todos);
-  const isLoading = useSelector((state) => state.todos.isLoading);
-  const error = useSelector((state) => state.todos.error);
+  const { todos, isLoading, error } = useSelector((state) => state.todos);
 
   useEffect(() => {
     dispatch(fetchTodos());
@@ -22,7 +20,7 @@ function Todos() {
     }
   };
 
-  const handleDeleteTodo = async (todoId: string) => {
+  const handleDeleteTodo = async (todoId) => {
     await dispatch(deleteTodo(todoId));
   };
 
@@ -30,35 +28,23 @@ function Todos() {
     await dispatch(toggleTodo(id));
   };
 
-  const renderAddTodo = () => {
-    return (
-      <div>
-        <input
-          type="input"
-          placeholder="Enter todo title"
-          value={newTodoInput}
-          onChange={(e) => setNewTodoInput(e.target.value)}
-        />
-        <button onClick={handleAddTodo}>Add</button>
-      </div>
-    );
-  };
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error in loading todos</div>;
-  }
-
   return (
     <>
       <div>
-        {renderAddTodo()}
+        <div>
+          <input
+            type="input"
+            placeholder="Enter todo title"
+            value={newTodoInput}
+            onChange={(e) => setNewTodoInput(e.target.value)}
+          />
+          <button onClick={handleAddTodo}>Add</button>
+        </div>
         <h1>Todo List</h1>
+        {isLoading && <div>Loading...</div>}
+        {error && <div>Error in loading todos</div>}
         <ul>
-          {todosStore.map((todo) => (
+          {todos.map((todo) => (
             <div key={todo.id}>
               <label>
                 <input type="checkbox" checked={todo.completed} onChange={() => handleCheckboxChange(todo.id)} />
