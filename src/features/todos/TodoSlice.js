@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { fetchTodos } from './todosAPI.ts';
+import { fetchTodos, addTodo, deleteTodo } from './todosAPI.ts';
 
 const initialState = {
   todos: [],
@@ -33,6 +33,12 @@ export const todosSlice = createSlice({
       .addCase(fetchTodos.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message;
+      })
+      .addCase(addTodo.fulfilled, (state, action) => {
+        state.todos = [...state.todos, action.payload];
+      })
+      .addCase(deleteTodo.fulfilled, (state, action) => {
+        state.todos = state.todos.filter((todo) => todo.id !== action.payload);
       });
   }
 });

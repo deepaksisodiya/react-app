@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setTodosRedux } from './todoSlice.js';
-import { fetchTodos } from './todosAPI.js';
+import { fetchTodos, addTodo, deleteTodo } from './todosAPI.js';
 
 function Todos() {
   const [newTodoInput, setNewTodoInput] = useState('');
@@ -16,21 +16,7 @@ function Todos() {
 
   const handleAddTodo = async () => {
     try {
-      const response = await fetch('http://localhost:3000/todos/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          title: newTodoInput,
-          completed: false
-        })
-      });
-      if (!response.ok) {
-        throw new Error('Failed to add todo');
-      }
-      const newTodo = await response.json();
-      dispatch(setTodosRedux([...todosStore, newTodo]));
+      await dispatch(addTodo(newTodoInput));
       setNewTodoInput('');
     } catch (error) {
       console.error('Error adding todo:', error);
@@ -38,17 +24,7 @@ function Todos() {
   };
 
   const handleDeleteTodo = async (todoId: string) => {
-    try {
-      const response = await fetch(`http://localhost:3000/todos/${todoId}`, {
-        method: 'DELETE'
-      });
-      if (!response.ok) {
-        throw new Error('Failed to add todo');
-      }
-      dispatch(setTodosRedux(todosStore.filter((todo) => todo.id !== todoId)));
-    } catch (error) {
-      console.error('Error deleting todo:', error);
-    }
+    await dispatch(deleteTodo(todoId));
   };
 
   const handleCheckboxChange = async (id, completed) => {
